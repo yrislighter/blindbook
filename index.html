@@ -44,6 +44,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
         }
         
         .book-container {
@@ -61,7 +62,6 @@
             background-color: var(--kraft-bg);
             box-shadow: inset 0 0 40px rgba(0,0,0,0.15);
             overflow: hidden;
-            backface-visibility: hidden;
         }
 
         .kraft-texture {
@@ -103,6 +103,7 @@
             flex-direction: column;
             align-items: center;
             padding-top: 50px;
+            z-index: 10;
         }
 
         /* 2. 뒷표지 */
@@ -113,7 +114,7 @@
             padding: 40px;
         }
 
-        /* 3. 책등 (Spine - 왼쪽) */
+        /* 3. 책등 (Spine) */
         .spine {
             width: var(--spine-width);
             height: var(--book-height);
@@ -134,7 +135,7 @@
             transform: rotateY(90deg) translateZ(0);
         }
 
-        /* 5. 상단면 (Top) - 좌표 수정으로 빈틈 완벽 해결 */
+        /* 5. 상단면 (Top) - 틈새 방지를 위한 정밀 좌표 */
         .top {
             width: var(--book-width);
             height: var(--spine-width);
@@ -162,7 +163,7 @@
             z-index: 10;
         }
 
-        /* 스티커 (작가 손글씨 이미지 적용) */
+        /* 스티커 */
         .sticker {
             position: relative;
             width: 85%;
@@ -210,6 +211,30 @@
             backdrop-filter: blur(3px);
         }
 
+        /* [컨페티 데코레이션] */
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: #fff9c4; /* 연한 노랑 꽃잎 */
+            border-radius: 50% 0 50% 0;
+            pointer-events: none;
+            z-index: 30;
+            opacity: 0.7;
+            filter: blur(0.5px);
+        }
+        
+        .confetti.leaf {
+            background-color: #81c784; /* 연한 초록 나뭇잎 */
+            border-radius: 100% 0 100% 0;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translate3d(0, 0, 0) rotate(0); opacity: 0; }
+            20% { opacity: 0.8; }
+            100% { transform: translate3d(var(--x), var(--y), 100px) rotate(360deg); opacity: 0; }
+        }
+
         /* 부유 애니메이션 */
         @keyframes floatingAnim {
             0%, 100% { transform: translateY(0) rotateX(0deg); }
@@ -239,8 +264,12 @@
         <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             
             <!-- 왼쪽: 3D 책 시각화 영역 -->
-            <div class="flex flex-col items-center">
+            <div class="flex flex-col items-center relative">
+                
                 <div class="perspective-stage floating">
+                    <!-- 컨페티 장식들 (상단 공간 집중 배치) -->
+                    <div id="confetti-wrapper" class="absolute inset-0 pointer-events-none"></div>
+
                     <div id="book" class="book-container">
                         
                         <!-- 1. 앞표지 -->
@@ -250,7 +279,6 @@
                                 Blind Book Selection
                             </div>
                             
-                            <!-- 가로/세로 리본 -->
                             <div class="ribbon-v"><div class="ribbon-shine" style="transform: rotate(90deg)"></div></div>
                             <div class="ribbon-h"><div class="ribbon-shine"></div></div>
 
@@ -301,14 +329,12 @@
                         <!-- 5. 상단면 (세로 리본 연결) -->
                         <div class="face top">
                             <div class="kraft-texture"></div>
-                            <!-- 세로 리본이 상단을 타고 뒤로 넘어감 -->
                             <div class="ribbon-v" style="height: 100%; width: var(--ribbon-size); left: 50%;"></div>
                         </div>
 
                         <!-- 6. 하단면 (세로 리본 연결) -->
                         <div class="face bottom">
                             <div class="kraft-texture"></div>
-                            <!-- 세로 리본이 하단을 타고 뒤로 넘어감 -->
                             <div class="ribbon-v" style="height: 100%; width: var(--ribbon-size); left: 50%;"></div>
                         </div>
                     </div>
@@ -331,7 +357,7 @@
                     </div>
                     <h2 class="text-4xl serif font-black mb-6 leading-tight">숲 속에서 만나는<br>운명의 문장</h2>
                     <p class="text-white/60 leading-relaxed mb-10 text-sm">
-                        2026년, 대한민국이 주목하는 젊은 작가들의 목소리를 블라인드북에 담았습니다. 제목도, 이름도 지운 채 오직 작가가 직접 쓴 첫 문장 스티커와 깊은 숲의 향기를 머금은 리본 패키지만으로 당신의 취향을 발견해 보세요.
+                        2026년, 대한민국이 주목하는 젊은 작가들의 목소리를 블라인드북에 담았습니다. 제목도, 이름도 지운 채 오직 작가가 직접 쓴 첫 문장만으로 당신의 운명의 책을 발견해 보세요.
                     </p>
 
                     <div class="space-y-4 mb-10">
@@ -339,13 +365,13 @@
                             <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
                                 <i data-lucide="pen-tool" class="w-5 h-5 text-green-400"></i>
                             </div>
-                            <p class="text-xs font-medium text-white/80">작가 친필 첫 문장 스티커 에디션</p>
+                            <p class="text-xs font-medium text-white/80">작가 친필 첫 문장을 스티커처럼 표현하여 강조</p>
                         </div>
                         <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-default">
                             <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
                                 <i data-lucide="package" class="w-5 h-5 text-green-400"></i>
                             </div>
-                            <p class="text-xs font-medium text-white/80">친환경 크라프트 패키지 & 실크 리본</p>
+                            <p class="text-xs font-medium text-white/80">친환경 크라프트 패키지 & 실크 리본 느낌이 나는 디자인으로 표1/책등/뒷표지 구현</p>
                         </div>
                     </div>
 
@@ -369,6 +395,36 @@
             back: document.getElementById('btn-back')
         };
 
+        // 컨페티 생성 함수
+        function createConfetti() {
+            const wrapper = document.getElementById('confetti-wrapper');
+            const colors = ['#fff9c4', '#f8bbd0', '#c8e6c9', '#e1f5fe'];
+            const count = 30;
+
+            for (let i = 0; i < count; i++) {
+                const confetti = document.createElement('div');
+                const isLeaf = Math.random() > 0.5;
+                confetti.className = `confetti ${isLeaf ? 'leaf' : ''}`;
+                
+                // 랜덤 위치 및 애니메이션 설정
+                const startX = Math.random() * 320; // 책 너비 안에서 시작
+                const startY = -20; // 책 상단 위쪽
+                const targetX = (Math.random() - 0.5) * 400;
+                const targetY = Math.random() * 200 + 100;
+                const duration = 4 + Math.random() * 6;
+                const delay = Math.random() * 5;
+
+                confetti.style.left = `${startX}px`;
+                confetti.style.top = `${startY}px`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.setProperty('--x', `${targetX}px`);
+                confetti.style.setProperty('--y', `${targetY}px`);
+                confetti.style.animation = `confettiFall ${duration}s ${delay}s infinite ease-out`;
+
+                wrapper.appendChild(confetti);
+            }
+        }
+
         function rotateTo(side) {
             Object.values(btns).forEach(b => {
                 b.classList.remove('bg-white', 'text-stone-900', 'shadow-xl');
@@ -387,7 +443,10 @@
             }
         }
 
-        lucide.createIcons();
+        window.onload = () => {
+            lucide.createIcons();
+            createConfetti(); // 페이지 로드 시 컨페티 장식 생성
+        };
     </script>
 </body>
 </html>
