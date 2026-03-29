@@ -13,7 +13,8 @@
             --book-width: 320px;
             --book-height: 460px;
             --spine-width: 44px;
-            --ribbon-color: #2d4f1e; /* 깊은 숲색 리본 */
+            --ribbon-color: #1e3a11; /* 깊고 진한 숲색 */
+            --ribbon-size: 38px;
         }
         body {
             margin: 0;
@@ -34,108 +35,143 @@
             z-index: -1;
         }
 
-        /* 3D 책 시스템 (핵심 수정 영역) */
+        /* 3D 스테이지 */
         .perspective-stage { 
-            perspective: 2000px; 
+            perspective: 2500px; 
             width: var(--book-width);
             height: var(--book-height);
             margin-top: 50px;
-        }
-        .book-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
-            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-origin: center center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
-        /* 면(Face) 공통 설정 */
+        .book-container {
+            position: relative;
+            width: var(--book-width);
+            height: var(--book-height);
+            transform-style: preserve-3d;
+            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: center center;
+        }
+
+        /* 모든 면 공통 스타일 */
         .face {
             position: absolute;
             background-color: var(--kraft-bg);
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.15);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.15);
             overflow: hidden;
-            backface-visibility: hidden; /* 뒷면은 안 보이게 해서 겹침 방지 */
+            backface-visibility: hidden;
         }
 
         .kraft-texture {
             position: absolute;
             inset: 0;
-            opacity: 0.3;
+            opacity: 0.35;
             background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
             pointer-events: none;
         }
 
-        /* 리본 공통 */
-        .ribbon-band {
+        /* [리본 시스템] */
+        .ribbon-h {
             position: absolute;
             background-color: var(--ribbon-color);
-            height: 38px;
+            height: var(--ribbon-size);
             top: 55%;
+            width: 100%;
             transform: translateY(-50%);
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             z-index: 5;
         }
+        .ribbon-v {
+            position: absolute;
+            background-color: var(--ribbon-color);
+            width: var(--ribbon-size);
+            height: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 4px 0 10px rgba(0,0,0,0.3);
+            z-index: 4;
+        }
 
-        /* 1. 앞표지 배치 */
+        /* 1. 앞표지 */
         .front {
             width: var(--book-width);
             height: var(--book-height);
             transform: translateZ(calc(var(--spine-width) / 2));
-            border-radius: 0 4px 4px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding-top: 50px;
         }
 
-        /* 2. 뒷표지 배치 */
+        /* 2. 뒷표지 */
         .back {
             width: var(--book-width);
             height: var(--book-height);
             transform: rotateY(180deg) translateZ(calc(var(--spine-width) / 2));
-            border-radius: 4px 0 0 4px;
             padding: 40px;
         }
 
-        /* 3. 책등(Spine) 배치 - 정확한 측면 고정 */
+        /* 3. 책등 (Spine - 왼쪽) */
         .spine {
             width: var(--spine-width);
             height: var(--book-height);
-            /* 중앙에서 왼쪽 끝으로 이동 후 90도 회전 */
-            left: calc(50% - (var(--spine-width) / 2));
-            transform: rotateY(-90deg) translateZ(calc(var(--book-width) / 2));
+            left: calc(var(--spine-width) / -2);
+            transform: rotateY(-90deg) translateZ(0);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
             padding: 40px 0;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
         }
 
-        /* 책등 텍스트 */
+        /* 4. 우측면 (Right) */
+        .right {
+            width: var(--spine-width);
+            height: var(--book-height);
+            right: calc(var(--spine-width) / -2);
+            transform: rotateY(90deg) translateZ(0);
+        }
+
+        /* 5. 상단면 (Top) - 좌표 수정으로 빈틈 완벽 해결 */
+        .top {
+            width: var(--book-width);
+            height: var(--spine-width);
+            top: calc(var(--spine-width) / -2);
+            transform: rotateX(90deg) translateZ(0);
+        }
+
+        /* 6. 하단면 (Bottom) */
+        .bottom {
+            width: var(--book-width);
+            height: var(--spine-width);
+            bottom: calc(var(--spine-width) / -2);
+            transform: rotateX(-90deg) translateZ(0);
+        }
+
+        /* 텍스트 */
         .spine-text {
             writing-mode: vertical-rl;
             text-orientation: mixed;
             font-family: 'Noto Serif KR', serif;
             font-size: 15px;
             letter-spacing: 0.2em;
-            color: rgba(0,0,0,0.6);
+            color: rgba(0,0,0,0.65);
             font-weight: 900;
-            white-space: nowrap;
+            z-index: 10;
         }
 
-        /* 작가 손글씨 스티커 - 이미지 사용 및 서명 마스킹 */
+        /* 스티커 (작가 손글씨 이미지 적용) */
         .sticker {
             position: relative;
             width: 85%;
-            height: 180px;
+            height: 190px;
             background: #fdfdfd;
-            margin-top: 40px;
-            box-shadow: 4px 8px 20px rgba(0,0,0,0.2);
-            transform: rotate(-1.5deg);
-            z-index: 10;
+            margin-top: 35px;
+            box-shadow: 4px 10px 25px rgba(0,0,0,0.25);
+            transform: rotate(-1.2deg);
+            z-index: 20;
             overflow: hidden;
             border: 1px solid rgba(0,0,0,0.05);
             display: flex;
@@ -144,24 +180,22 @@
         }
         .sticker img {
             width: 100%;
-            height: 140%; /* 높이를 키워서 하단을 밀어냄 */
+            height: 100%;
             object-fit: cover;
-            object-position: center top; /* 상단(문장) 위주로 노출 */
+            object-position: center 25%;
             filter: contrast(1.05) brightness(0.98);
         }
 
-        /* 스티커 테이프 */
         .tape {
             position: absolute;
-            width: 50px;
-            height: 18px;
-            background: rgba(255, 255, 255, 0.2);
+            width: 55px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
             backdrop-filter: blur(2px);
-            z-index: 11;
+            z-index: 21;
         }
-        .tape-tr { top: -5px; right: -10px; transform: rotate(45deg); }
+        .tape-tr { top: -5px; right: -12px; transform: rotate(42deg); }
 
-        /* 뒷표지 내부 */
         .back-inner {
             border: 1px solid rgba(0,0,0,0.1);
             height: 100%;
@@ -169,27 +203,30 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 30px;
+            position: relative;
+            z-index: 10;
+            background: rgba(210, 180, 140, 0.88);
+            backdrop-filter: blur(3px);
         }
 
-        /* 둥실둥실 애니메이션 */
-        @keyframes float {
-            0%, 100% { margin-top: 0px; }
-            50% { margin-top: -15px; }
+        /* 부유 애니메이션 */
+        @keyframes floatingAnim {
+            0%, 100% { transform: translateY(0) rotateX(0deg); }
+            50% { transform: translateY(-20px) rotateX(2deg); }
         }
-        .floating { animation: float 4s infinite ease-in-out; }
+        .floating { animation: floatingAnim 5s infinite ease-in-out; }
 
         .glass-ui {
             background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        /* 리본 빛 반사 */
         .ribbon-shine {
             position: absolute;
             inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
         }
     </style>
 </head>
@@ -206,59 +243,79 @@
                 <div class="perspective-stage floating">
                     <div id="book" class="book-container">
                         
-                        <!-- 앞표지 -->
+                        <!-- 1. 앞표지 -->
                         <div class="face front">
                             <div class="kraft-texture"></div>
-                            <div class="text-[10px] font-black tracking-[0.6em] text-stone-800/40 uppercase border-b border-stone-800/20 pb-1">
+                            <div class="text-[10px] font-black tracking-[0.6em] text-stone-800/40 uppercase border-b border-stone-800/20 pb-1 relative z-10">
                                 Blind Book Selection
                             </div>
                             
-                            <div class="ribbon-band w-full"><div class="ribbon-shine"></div></div>
+                            <!-- 가로/세로 리본 -->
+                            <div class="ribbon-v"><div class="ribbon-shine" style="transform: rotate(90deg)"></div></div>
+                            <div class="ribbon-h"><div class="ribbon-shine"></div></div>
 
-                            <!-- 실제 손글씨 이미지 적용 -->
                             <div class="sticker">
                                 <div class="tape tape-tr"></div>
-                                <img src="김채원_손글씨.JPG" alt="작가 손글씨">
+                                <img src="https://image.yes24.com/momo/TopCate6744/MidCate001/674300637.jpg" alt="작가 손글씨">
                             </div>
 
-                            <div class="mt-auto mb-10">
-                                <span class="text-[14px] font-black text-blue-950/40 tracking-[0.5em] uppercase">YES24</span>
+                            <div class="mt-auto mb-12 relative z-10">
+                                <span class="text-[14px] font-black text-blue-950/40 tracking-[0.6em] uppercase">YES24</span>
                             </div>
                         </div>
 
-                        <!-- 책등 (Spine) -->
-                        <div class="face spine">
-                            <div class="kraft-texture"></div>
-                            <div class="w-1.5 h-1.5 bg-black/20 rounded-full"></div>
-                            <div class="ribbon-band w-full"></div>
-                            <div class="spine-text">2026 젊은 작가 블라인드북</div>
-                            <div class="w-1.5 h-1.5 bg-black/20 rounded-full"></div>
-                        </div>
-
-                        <!-- 뒷표지 -->
+                        <!-- 2. 뒷표지 -->
                         <div class="face back">
                             <div class="kraft-texture"></div>
-                            <div class="ribbon-band w-full"></div>
-                            <div class="back-inner">
-                                <p class="serif text-stone-800/60 leading-loose text-sm italic">
+                            <div class="ribbon-v"></div>
+                            <div class="ribbon-h"></div>
+                            <div class="back-inner shadow-2xl">
+                                <p class="serif text-stone-900/80 leading-loose text-sm italic font-black">
                                     “나뭇잎 사이로 부서지는 햇살처럼,<br>
                                     이 문장이 당신의 오늘에<br>
                                     작은 빛이 되길 바랍니다.”
                                 </p>
-                                <div class="mt-auto opacity-30">
-                                    <div class="flex gap-1 h-6 items-end mb-2">
-                                        <div class="w-[1px] h-4 bg-black"></div><div class="w-[2px] h-6 bg-black"></div>
-                                        <div class="w-[1px] h-3 bg-black"></div><div class="w-[1px] h-5 bg-black"></div>
+                                <div class="mt-auto opacity-70">
+                                    <div class="flex gap-1 h-6 items-end mb-2 justify-center">
+                                        <div class="w-[1.5px] h-4 bg-black"></div><div class="w-[2.5px] h-6 bg-black"></div>
+                                        <div class="w-[1.5px] h-3 bg-black"></div><div class="w-[1.5px] h-5 bg-black"></div>
                                     </div>
-                                    <span class="text-[9px] font-bold tracking-widest text-black">YES24-BLIND-2026</span>
+                                    <span class="text-[10px] font-bold tracking-widest text-black">YES24-BLIND-2026</span>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- 3. 책등 (왼쪽) -->
+                        <div class="face spine">
+                            <div class="kraft-texture"></div>
+                            <div class="ribbon-h"></div>
+                            <div class="spine-text">2026 젊은 작가 블라인드북</div>
+                        </div>
+
+                        <!-- 4. 우측면 (오른쪽) -->
+                        <div class="face right">
+                            <div class="kraft-texture"></div>
+                            <div class="ribbon-h"></div>
+                        </div>
+
+                        <!-- 5. 상단면 (세로 리본 연결) -->
+                        <div class="face top">
+                            <div class="kraft-texture"></div>
+                            <!-- 세로 리본이 상단을 타고 뒤로 넘어감 -->
+                            <div class="ribbon-v" style="height: 100%; width: var(--ribbon-size); left: 50%;"></div>
+                        </div>
+
+                        <!-- 6. 하단면 (세로 리본 연결) -->
+                        <div class="face bottom">
+                            <div class="kraft-texture"></div>
+                            <!-- 세로 리본이 하단을 타고 뒤로 넘어감 -->
+                            <div class="ribbon-v" style="height: 100%; width: var(--ribbon-size); left: 50%;"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 인터랙션 컨트롤러 -->
-                <div class="mt-20 flex p-1.5 bg-black/30 rounded-full backdrop-blur-xl border border-white/10 relative z-50">
+                <div class="mt-24 flex p-1.5 bg-black/40 rounded-full backdrop-blur-xl border border-white/10 relative z-50 shadow-2xl">
                     <button onclick="rotateTo('front')" id="btn-front" class="px-8 py-2.5 rounded-full text-xs font-bold transition-all bg-white text-stone-900 shadow-xl">앞표지</button>
                     <button onclick="rotateTo('spine')" id="btn-spine" class="px-8 py-2.5 rounded-full text-xs font-bold transition-all text-white/50 hover:text-white">책등</button>
                     <button onclick="rotateTo('back')" id="btn-back" class="px-8 py-2.5 rounded-full text-xs font-bold transition-all text-white/50 hover:text-white">뒷표지</button>
@@ -278,13 +335,13 @@
                     </p>
 
                     <div class="space-y-4 mb-10">
-                        <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
+                        <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-default">
                             <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
                                 <i data-lucide="pen-tool" class="w-5 h-5 text-green-400"></i>
                             </div>
                             <p class="text-xs font-medium text-white/80">작가 친필 첫 문장 스티커 에디션</p>
                         </div>
-                        <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
+                        <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-default">
                             <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
                                 <i data-lucide="package" class="w-5 h-5 text-green-400"></i>
                             </div>
@@ -292,10 +349,12 @@
                         </div>
                     </div>
 
-                    <button class="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black text-lg transition-all shadow-2xl shadow-blue-600/40 flex items-center justify-center gap-3">
-                        운명의 책 구매하기
-                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
-                    </button>
+                    <a href="https://www.yes24.com/product/goods/184231560" target="_blank" class="block w-full">
+                        <button class="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black text-lg transition-all shadow-2xl shadow-blue-600/40 flex items-center justify-center gap-3 active:scale-95">
+                            운명의 책 구매하기
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </button>
+                    </a>
                 </div>
             </div>
 
@@ -311,24 +370,19 @@
         };
 
         function rotateTo(side) {
-            // 버튼 스타일 초기화
             Object.values(btns).forEach(b => {
                 b.classList.remove('bg-white', 'text-stone-900', 'shadow-xl');
                 b.classList.add('text-white/50');
             });
 
-            // 선택된 버튼 활성화
             btns[side].classList.add('bg-white', 'text-stone-900', 'shadow-xl');
             btns[side].classList.remove('text-white/50');
 
-            // 3D 회전 로직 (정교하게 수정)
             if (side === 'front') {
                 book.style.transform = "rotateY(0deg)";
             } else if (side === 'spine') {
-                // 책등이 정면을 보도록 90도 회전
                 book.style.transform = "rotateY(90deg)";
             } else if (side === 'back') {
-                // 뒷표지가 정면을 보도록 180도 회전
                 book.style.transform = "rotateY(180deg)";
             }
         }
