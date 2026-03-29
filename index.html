@@ -3,40 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4월 블라인드 북 디자인 시안</title>
+    <title>4월 이벤트: 숲 속을 거닐다 - 블라인드 북</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Noto+Serif+KR:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f5f5f4;
+            margin: 0;
+            overflow-x: hidden;
         }
         .serif {
             font-family: 'Noto Serif KR', serif;
         }
-        .perspective-1000 { perspective: 1200px; }
+        .handwriting {
+            font-family: 'Nanum Pen Script', cursive;
+        }
+        
+        /* 숲 배경 설정 */
+        .forest-viewport {
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), 
+                        url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=2560');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        /* 나뭇잎 사이로 비치는 햇살 효과 (Overlay) */
+        .dappled-light {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 20%, rgba(255, 255, 220, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 60%, rgba(255, 255, 220, 0.1) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 1;
+            animation: light-shift 15s infinite alternate ease-in-out;
+        }
+
+        @keyframes light-shift {
+            from { opacity: 0.5; transform: scale(1); }
+            to { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        /* 3D 설정 */
+        .perspective-1000 { perspective: 1500px; }
         .transform-style-3d { transform-style: preserve-3d; }
         .backface-hidden { backface-visibility: hidden; }
         
-        /* Book Rotation States */
         .show-front { transform: rotateY(0deg); }
         .show-spine { transform: rotateY(-90deg); }
         .show-back { transform: rotateY(-180deg); }
 
         .book-container {
-            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Kraft Texture Pattern */
+        /* 책이 공중에 떠 있는 듯한 애니메이션 */
+        .floating-book {
+            animation: float 4s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
         .kraft-pattern {
             background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
         }
+
+        .ink-effect {
+            color: #1a1a1b;
+            text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.1);
+            filter: blur(0.15px);
+        }
+
+        /* 유리 질감 UI */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
-<body class="text-stone-800 antialiased">
+<body class="text-white antialiased">
 
-    <!-- SVG Noise Filter -->
+    <div class="dappled-light"></div>
+
+    <div class="forest-viewport flex flex-col items-center p-6 md:p-12 min-h-screen relative z-10">
+        <!-- Header -->
+        <header class="w-full max-w-2xl mb-12 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-green-900/40 text-green-200 text-[10px] font-bold tracking-[0.3em] rounded-full mb-4 uppercase backdrop-blur-md border border-green-500/20">
+                <i data-lucide="leaf" class="w-3 h-3"></i>
+                April Event: 숲 속을 거닐다
+            </div>
+            <h1 class="text-5xl serif font-black text-white mb-4 tracking-tighter italic drop-shadow-lg">Forest Walk Edition</h1>
+            <p class="text-green-100/80 font-medium italic text-lg">"숲의 정막 속에서 만나는 작가의 첫 문장"</p>
+        </header>
+
+        <!-- Main Content Area -->
+        <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            
+            <!-- 왼쪽: 3D 책 시뮬레이터 -->
+            <div class="flex flex-col items-center">
+                <!-- 컨트롤러 -->
+                <div class="mb-12 flex p-1.5 bg-black/20 rounded-2xl backdrop-blur-xl border border-white/10">
+                    <button onclick="setSide('front')" id="btn-front" class="side-btn px-10 py-3 rounded-xl text-xs font-black transition-all bg-white text-stone-900 shadow-xl">앞표지</button>
+                    <button onclick="setSide('spine')" id="btn-spine" class="side-btn px-10 py-3 rounded-xl text-xs font-black transition-all text-white/60 hover:text-white">책등</button>
+                    <button onclick="setSide('back')" id="btn-back" class="side-btn px-10 py-3 rounded-xl text-xs font-black transition-all text-white/60 hover:text-white">뒷표지</button>
+                </div>
+
+                <!-- 3D Stage -->
+                <div class="relative perspective-1000 h-[550px] w-full flex items-center justify-center">
+                    <div class="floating-book">
+                        <div id="book-element" class="book-container transform-style-3d relative w-72 h-[430px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.6)]">
+                            
+                            <!-- 앞표지 (손글씨 적용) -->
+                            <div id="cover-front" class="absolute inset-0 backface-hidden rounded-r-sm border-l border-black/5 flex flex-col p-9 items-center justify-between text-center overflow-hidden" style="transform: translateZ(20px); background-color: #D2B48C;">
+                                <div class="absolute inset-0 opacity-40 mix-blend-multiply pointer-events-none" style="filter: url(#kraftNoise); background-color: inherit;"></div>
+                                <div class="absolute inset-0 kraft-pattern opacity-10 pointer-events-none"></div>
+                                
+                                <div class="relative z-10 flex flex-col items-center w-full mt-4">
+                                    <div class="w-10 h-10 rounded-full bg-black/5 flex items-center justify-center mb-6">
+                                        <i data-lucide="feather" class="w-5 h-5 text-stone-800/40"></i>
+                                    </div>
+                                    <div class="text-[9px] font-black uppercase tracking-[0.5em] text-stone-800/40 mb-14 border-b border-stone-800/20 pb-2">
+                                        Author's First Line
+                                    </div>
+                                    
+                                    <!-- 손글씨 문구 -->
+                                    <div class="w-full px-2">
+                                        <p class="handwriting ink-effect text-[2.5rem] leading-[1.3] break-keep text-stone-900">
+                                            어떤 사람은 건강하지 않아도 오래 살 수 있다.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="relative z-10 w-full">
+                                    <div class="flex flex-wrap justify-center gap-2 mb-10">
+                                        <span class="text-[9px] bg-white/30 px-2 py-1 rounded-sm font-bold border border-black/5 text-stone-800 backdrop-blur-sm">#숲속의_철학</span>
+                                        <span class="text-[9px] bg-white/30 px-2 py-1 rounded-sm font-bold border border-black/5 text-stone-800 backdrop-blur-sm">#4월한정</span>
+                                    </div>
+                                    <div class="text-[9px] font-mono text-stone-600 uppercase tracking-[0.4em] italic opacity-60">
+                                        Forest Whispers
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 책등 (Spine) -->
+                            <div id="cover-spine" class="absolute w-12 h-[430px] flex items-center justify-center border-x border-black/10 shadow-inner overflow-hidden" style="left: 120px; transform: rotateY(-90deg) translateZ(144px); background-color: #D2B48C;">
+                                <div class="absolute inset-0 opacity-40 mix-blend-multiply pointer-events-none" style="filter: url(#kraftNoise); background-color: inherit;"></div>
+                                <span class="whitespace-nowrap transform -rotate-90 serif font-black text-xs tracking-[0.6em] text-stone-800/40 uppercase">
+                                    FOREST WALK NO.04
+                                </span>
+                            </div>
+
+                            <!-- 뒷표지 -->
+                            <div id="cover-back" class="absolute inset-0 backface-hidden rounded-l-sm border-r border-black/5 flex flex-col p-12 items-center justify-center text-center" style="transform: rotateY(180deg) translateZ(20px); background-color: #D2B48C;">
+                                <div class="absolute inset-0 opacity-40 mix-blend-multiply pointer-events-none" style="filter: url(#kraftNoise); background-color: inherit;"></div>
+                                <div class="relative z-10 p-6 border border-stone-800/10 rounded-sm bg-white/10 backdrop-blur-[2px]">
+                                    <p class="text-[13px] leading-relaxed italic text-stone-800 serif">
+                                        울창한 나무들 사이를 걷다 우연히 발견한 문장 하나. 이 책은 당신의 삶에 작은 쉼표가 되어줄 것입니다.
+                                    </p>
+                                </div>
+                                <div class="relative z-10 mt-16 flex flex-col items-center opacity-30">
+                                    <i data-lucide="trees" class="w-8 h-8 mb-2 text-stone-900"></i>
+                                    <div class="text-[8px] font-mono tracking-[0.3em] uppercase">Limited Edition 2024</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 오른쪽: 이벤트 상세 기획 -->
+            <div class="space-y-10">
+                <div class="glass-panel p-10 rounded-[3rem]">
+                    <h3 class="text-2xl serif font-bold mb-8 flex items-center gap-3 text-white">
+                        <i data-lucide="compass" class="w-7 h-7 text-green-400"></i>
+                        Concept: 숲 속을 거닐다
+                    </h3>
+                    
+                    <div class="space-y-8 text-sm leading-relaxed text-green-50/80">
+                        <div class="flex gap-5">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-500/20 border border-green-400/30 flex items-center justify-center text-green-300 font-bold">01</div>
+                            <div>
+                                <h4 class="font-bold text-white mb-2">Visual Atmosphere</h4>
+                                <p>브라운 크라프트지의 따뜻함과 딥 그린 숲 배경의 대비를 통해, 정적이면서도 신비로운 분위기를 연출합니다.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-5">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-500/20 border border-green-400/30 flex items-center justify-center text-green-300 font-bold">02</div>
+                            <div>
+                                <h4 class="font-bold text-white mb-2">Typography</h4>
+                                <p>작가님의 문구는 인쇄된 폰트가 아닌, 숲의 자연스러운 흐름을 닮은 자유로운 손글씨(Handwriting)를 메인으로 사용합니다.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-5">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-500/20 border border-green-400/30 flex items-center justify-center text-green-300 font-bold">03</div>
+                            <div>
+                                <h4 class="font-bold text-white mb-2">Interaction</h4>
+                                <p>사용자가 책을 돌려보는 경험은 마치 숲길에서 떨어진 보물을 발견하고 조심스럽게 살펴보는 듯한 느낌을 줍니다.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-12 pt-8 border-t border-white/10">
+                        <button class="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-bold transition-all shadow-lg shadow-green-900/40 flex items-center justify-center gap-3">
+                            운명의 책 구매하기
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-8 rounded-[2.5rem] flex items-center gap-6">
+                    <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="music" class="w-6 h-6 text-green-300"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-green-400 uppercase tracking-widest mb-1">Ambient Sound ON</p>
+                        <p class="text-sm text-white/70">배경음으로 낮은 바람 소리와 새소리가 재생 중입니다.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 노이즈 필터 정의 -->
     <svg style="display: none;">
         <filter id="kraftNoise">
             <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" stitchTiles="stitch" />
@@ -50,241 +249,23 @@
         </filter>
     </svg>
 
-    <div class="min-h-screen flex flex-col items-center p-6 md:p-12">
-        <!-- Header -->
-        <header class="w-full max-w-md mb-12 text-center">
-            <div class="inline-block px-4 py-1 bg-stone-900 text-white text-[10px] font-bold tracking-[0.2em] rounded-full mb-4 uppercase">
-                April Event
-            </div>
-            <h1 class="text-4xl serif font-black text-stone-900 mb-3 tracking-tight italic">BLIND BOOK</h1>
-            <p class="text-stone-500 font-medium italic">"문장 뒤에 숨겨진 설렘을 언박싱하세요"</p>
-        </header>
-
-        <!-- Main Content -->
-        <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-            
-            <!-- Left: 3D Book Interactive Area -->
-            <div class="flex flex-col items-center">
-                <!-- Side Selector -->
-                <div class="mb-10 flex p-1.5 bg-stone-200/50 rounded-2xl backdrop-blur-sm">
-                    <button onclick="setSide('front')" id="btn-front" class="side-btn px-8 py-2.5 rounded-xl text-xs font-black transition-all bg-white text-stone-900 shadow-sm">FRONT</button>
-                    <button onclick="setSide('spine')" id="btn-spine" class="side-btn px-8 py-2.5 rounded-xl text-xs font-black transition-all text-stone-500 hover:text-stone-800">SPINE</button>
-                    <button onclick="setSide('back')" id="btn-back" class="side-btn px-8 py-2.5 rounded-xl text-xs font-black transition-all text-stone-500 hover:text-stone-800">BACK</button>
-                </div>
-
-                <!-- 3D Book Stage -->
-                <div class="relative perspective-1000 h-[520px] w-full flex items-center justify-center">
-                    <div id="book-element" class="book-container transform-style-3d relative w-72 h-[420px] shadow-[30px_30px_80px_-15px_rgba(0,0,0,0.2)]">
-                        
-                        <!-- Front Face -->
-                        <div id="cover-front" class="absolute inset-0 backface-hidden rounded-r-sm border-l border-black/5 flex flex-col p-10 items-center justify-between text-center overflow-hidden" style="transform: translateZ(20px);">
-                            <div class="absolute inset-0 opacity-40 mix-blend-multiply pointer-events-none" style="filter: url(#kraftNoise); background-color: inherit;"></div>
-                            <div class="absolute inset-0 kraft-pattern opacity-10 pointer-events-none"></div>
-                            
-                            <div class="relative z-10 flex flex-col items-center">
-                                <i data-lucide="bookmark" class="w-7 h-7 mb-8 text-stone-800/20"></i>
-                                <div class="text-[10px] font-black uppercase tracking-[0.4em] text-stone-800/40 mb-10 border-b border-stone-800/20 pb-2">
-                                    04. Blind Selection
-                                </div>
-                                <h2 id="text-hook" class="text-2xl serif font-bold leading-[1.7] break-keep text-stone-900">
-                                    "우리는 모두 누군가의 서툰 첫사랑이었다."
-                                </h2>
-                            </div>
-
-                            <div class="relative z-10 w-full">
-                                <div id="tag-container" class="flex flex-wrap justify-center gap-2 mb-8">
-                                    <!-- Tags injected here -->
-                                </div>
-                                <div class="text-[10px] font-mono text-stone-500 uppercase tracking-[0.3em] italic opacity-60">
-                                    Story remains mystery
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Spine Face -->
-                        <div id="cover-spine" class="absolute w-10 h-[420px] flex items-center justify-center border-x border-black/10 shadow-inner overflow-hidden" style="left: 124px; transform: rotateY(-90deg) translateZ(144px);">
-                            <div class="absolute inset-0 opacity-40 mix-blend-multiply pointer-events-none" style="filter: url(#kraftNoise); background-color: inherit;"></div>
-                            <span id="text-spine" class="whitespace-nowrap transform -rotate-90 serif font-black text-xs tracking-[0.6em] text-stone-800/50 uppercase">
-                                APRIL NO.1
-                            </span>
-                        </div>
-
-                        <!-- Back Face -->
-                        <div id="cover-back" class="absolute inset-0 backface-hidden rounded-l-sm border-r border-black/5 flex flex-col p-10 items-center justify-center text-center" style="transform: rotateY(180deg) translateZ(20px);">
-                            <div class="absolute inset-0 opacity-40 mix-blend-multiply pointer-events-none" style="filter: url(#kraftNoise); background-color: inherit;"></div>
-                            <div class="relative z-10 p-8 border border-stone-800/10 rounded-sm bg-white/10 backdrop-blur-[1px]">
-                                <p id="text-curator" class="text-sm leading-relaxed italic text-stone-800 serif">
-                                    4월의 따스한 햇살 아래, 잊고 있던 청춘의 한 페이지를 넘겨보고 싶은 당신에게 추천합니다.
-                                </p>
-                            </div>
-                            <div class="relative z-10 mt-12 flex flex-col items-center opacity-40">
-                                <div class="flex gap-1 items-end h-10">
-                                    <div class="w-[2px] h-6 bg-black"></div><div class="w-[2px] h-8 bg-black"></div><div class="w-[2px] h-4 bg-black"></div>
-                                    <div class="w-[2px] h-10 bg-black"></div><div class="w-[2px] h-7 bg-black"></div><div class="w-[2px] h-9 bg-black"></div>
-                                </div>
-                                <div class="text-[8px] mt-2 font-mono tracking-widest uppercase">Project Blind-4</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Book Selector -->
-                <div class="mt-12 flex items-center gap-10">
-                    <button onclick="selectBook(0)" class="book-select-btn group flex flex-col items-center gap-3">
-                        <div id="dot-0" class="w-12 h-12 rounded-full border-2 p-1 transition-all border-stone-900">
-                            <div class="w-full h-full rounded-full bg-[#D2B48C]"></div>
-                        </div>
-                        <span class="text-[10px] font-black text-stone-900 uppercase tracking-tighter">Book 01</span>
-                    </button>
-                    <button onclick="selectBook(1)" class="book-select-btn group flex flex-col items-center gap-3">
-                        <div id="dot-1" class="w-12 h-12 rounded-full border-2 p-1 transition-all border-transparent opacity-40">
-                            <div class="w-full h-full rounded-full bg-[#C0C0C0]"></div>
-                        </div>
-                        <span class="text-[10px] font-black text-stone-400 uppercase tracking-tighter">Book 02</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Right: Design Guide -->
-            <div class="space-y-10">
-                <div class="bg-stone-900 text-stone-100 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-                    <h3 class="text-2xl serif font-bold mb-8 flex items-center gap-3">
-                        <i data-lucide="palette" class="w-7 h-7 text-stone-500"></i>
-                        크라프트 질감 구현 가이드
-                    </h3>
-                    
-                    <div class="space-y-8">
-                        <div class="flex gap-5">
-                            <div class="flex-shrink-0 w-10 h-10 bg-stone-800 border border-stone-700 rounded-full flex items-center justify-center text-stone-400 font-bold text-sm">01</div>
-                            <div>
-                                <h4 class="font-bold text-stone-200 mb-2">물성이 느껴지는 베이스 컬러</h4>
-                                <p class="text-stone-400 text-sm leading-relaxed">단색 브라운이 아닌, 실제 종이 칩을 스캔한 듯한 입자감이 포함된 텍스처를 배경에 깔아야 합니다. (Noise 5% 이상 권장)</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-5">
-                            <div class="flex-shrink-0 w-10 h-10 bg-stone-800 border border-stone-700 rounded-full flex items-center justify-center text-stone-400 font-bold text-sm">02</div>
-                            <div>
-                                <h4 class="font-bold text-stone-200 mb-2">스며든 느낌의 타이포그래피</h4>
-                                <p class="text-stone-400 text-sm leading-relaxed">글자가 종이 위에 둥둥 떠있지 않도록 잉크의 번짐(Bleeding) 효과를 미세하게 적용하여 종이와 하나가 된 느낌을 줍니다.</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-5">
-                            <div class="flex-shrink-0 w-10 h-10 bg-stone-800 border border-stone-700 rounded-full flex items-center justify-center text-stone-400 font-bold text-sm">03</div>
-                            <div>
-                                <h4 class="font-bold text-stone-200 mb-2">무광 후가공 시뮬레이션</h4>
-                                <p class="text-stone-400 text-sm leading-relaxed">전체적으로 광택을 제거한 매트(Matt)한 마감을 지향합니다. 강조 문장에만 유광 먹박(Spot UV) 처리를 기획하여 대비를 줍니다.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-10 rounded-[2.5rem] border border-stone-200 shadow-sm">
-                    <div class="flex items-center justify-between mb-8">
-                        <h3 class="text-lg font-black text-stone-900 uppercase tracking-tight">Technical Memo</h3>
-                        <i data-lucide="info" class="w-5 h-5 text-stone-300"></i>
-                    </div>
-                    <p class="text-stone-500 text-sm leading-relaxed mb-6">
-                        본 시안은 디자이너와의 원활한 협업을 위해 제작되었습니다. <br>
-                        <strong>표지:</strong> 제목 대신 문장을 활용한 큐레이션 방식<br>
-                        <strong>재질:</strong> 친환경 재생지(Kraft) 컨셉의 4월 한정판
-                    </p>
-                    <div class="pt-6 border-t border-stone-100 flex items-center justify-between">
-                        <span class="text-[10px] font-bold text-stone-400 tracking-widest uppercase">Planning by UI/UX Expert</span>
-                        <div class="flex gap-2">
-                            <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                            <div class="w-2 h-2 rounded-full bg-stone-200"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
     <script>
-        const books = [
-            {
-                id: 1,
-                color: "#D2B48C",
-                keywords: ["#벚꽃", "#서툰_진심", "#편지"],
-                hook: "우리는 모두 누군가의 서툰 첫사랑이었다.",
-                curatorNote: "4월의 따스한 햇살 아래, 잊고 있던 청춘의 한 페이지를 넘겨보고 싶은 당신에게 추천합니다.",
-                spine: "APRIL NO.1"
-            },
-            {
-                id: 2,
-                color: "#C0C0C0",
-                keywords: ["#미스터리", "#반전", "#새벽3시"],
-                hook: "그날 밤, 아무도 모르게 사라진 것은 진실이었다.",
-                curatorNote: "잠 못 드는 밤, 심장을 조여오는 긴장감을 즐기는 분들을 위한 완벽한 선택.",
-                spine: "APRIL NO.2"
-            }
-        ];
-
-        let currentSide = 'front';
-        let currentBookIdx = 0;
-
         function setSide(side) {
-            currentSide = side;
             const book = document.getElementById('book-element');
-            
-            // Update classes
             book.classList.remove('show-front', 'show-spine', 'show-back');
             book.classList.add(`show-${side}`);
 
-            // Update buttons
             document.querySelectorAll('.side-btn').forEach(btn => {
-                btn.classList.remove('bg-white', 'text-stone-900', 'shadow-sm');
-                btn.classList.add('text-stone-500');
+                btn.classList.remove('bg-white', 'text-stone-900', 'shadow-xl');
+                btn.classList.add('text-white/60');
             });
             const activeBtn = document.getElementById(`btn-${side}`);
-            activeBtn.classList.add('bg-white', 'text-stone-900', 'shadow-sm');
-            activeBtn.classList.remove('text-stone-500');
+            activeBtn.classList.add('bg-white', 'text-stone-900', 'shadow-xl');
+            activeBtn.classList.remove('text-white/60');
         }
 
-        function selectBook(idx) {
-            currentBookIdx = idx;
-            const book = books[idx];
-
-            // Update UI Elements
-            document.getElementById('cover-front').style.backgroundColor = book.color;
-            document.getElementById('cover-spine').style.backgroundColor = book.color;
-            document.getElementById('cover-back').style.backgroundColor = book.color;
-            document.getElementById('text-hook').innerText = `"${book.hook}"`;
-            document.getElementById('text-spine').innerText = book.spine;
-            document.getElementById('text-curator').innerText = book.curatorNote;
-
-            // Update Tags
-            const tagContainer = document.getElementById('tag-container');
-            tagContainer.innerHTML = '';
-            book.keywords.forEach(k => {
-                const span = document.createElement('span');
-                span.className = 'text-[10px] bg-black/5 px-2 py-1 rounded-sm font-bold border border-black/5 text-stone-700';
-                span.innerText = k;
-                tagContainer.appendChild(span);
-            });
-
-            // Update selector dots
-            document.querySelectorAll('.book-select-btn div[id^="dot-"]').forEach((dot, i) => {
-                if(i === idx) {
-                    dot.classList.add('border-stone-900');
-                    dot.classList.remove('border-transparent', 'opacity-40');
-                    dot.nextElementSibling.classList.remove('text-stone-400');
-                    dot.nextElementSibling.classList.add('text-stone-900');
-                } else {
-                    dot.classList.remove('border-stone-900');
-                    dot.classList.add('border-transparent', 'opacity-40');
-                    dot.nextElementSibling.classList.add('text-stone-400');
-                    dot.nextElementSibling.classList.remove('text-stone-900');
-                }
-            });
-        }
-
-        // Initialize
         window.onload = () => {
             lucide.createIcons();
-            selectBook(0);
         };
     </script>
 </body>
