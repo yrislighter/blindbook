@@ -21,6 +21,7 @@
             overflow-x: hidden;
             background-color: #0d1a0d;
             font-family: 'Noto Sans KR', sans-serif;
+            scroll-behavior: smooth;
         }
         .serif { font-family: 'Noto Serif KR', serif; }
 
@@ -28,7 +29,7 @@
         .forest-bg {
             position: fixed;
             inset: 0;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
                         url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=2560');
             background-size: cover;
             background-position: center;
@@ -40,7 +41,6 @@
             perspective: 2500px; 
             width: var(--book-width);
             height: var(--book-height);
-            margin-top: 50px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -94,74 +94,15 @@
             z-index: 4;
         }
 
-        /* 1. 앞표지 */
-        .front {
-            width: var(--book-width);
-            height: var(--book-height);
-            transform: translateZ(calc(var(--spine-width) / 2));
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 50px;
-            z-index: 10;
-        }
+        /* 3D 면별 좌표 */
+        .front { width: var(--book-width); height: var(--book-height); transform: translateZ(calc(var(--spine-width) / 2)); display: flex; flex-direction: column; align-items: center; padding-top: 50px; z-index: 10; }
+        .back { width: var(--book-width); height: var(--book-height); transform: rotateY(180deg) translateZ(calc(var(--spine-width) / 2)); padding: 40px; }
+        .spine { width: var(--spine-width); height: var(--book-height); left: calc(var(--spine-width) / -2); transform: rotateY(-90deg) translateZ(0); display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 40px 0; }
+        .right { width: var(--spine-width); height: var(--book-height); right: calc(var(--spine-width) / -2); transform: rotateY(90deg) translateZ(0); }
+        .top { width: var(--book-width); height: var(--spine-width); top: calc(var(--spine-width) / -2); transform: rotateX(90deg) translateZ(0); }
+        .bottom { width: var(--book-width); height: var(--spine-width); bottom: calc(var(--spine-width) / -2); transform: rotateX(-90deg) translateZ(0); }
 
-        /* 2. 뒷표지 */
-        .back {
-            width: var(--book-width);
-            height: var(--book-height);
-            transform: rotateY(180deg) translateZ(calc(var(--spine-width) / 2));
-            padding: 40px;
-        }
-
-        /* 3. 책등 (Spine) */
-        .spine {
-            width: var(--spine-width);
-            height: var(--book-height);
-            left: calc(var(--spine-width) / -2);
-            transform: rotateY(-90deg) translateZ(0);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            padding: 40px 0;
-        }
-
-        /* 4. 우측면 (Right) */
-        .right {
-            width: var(--spine-width);
-            height: var(--book-height);
-            right: calc(var(--spine-width) / -2);
-            transform: rotateY(90deg) translateZ(0);
-        }
-
-        /* 5. 상단면 (Top) - 틈새 방지를 위한 정밀 좌표 */
-        .top {
-            width: var(--book-width);
-            height: var(--spine-width);
-            top: calc(var(--spine-width) / -2);
-            transform: rotateX(90deg) translateZ(0);
-        }
-
-        /* 6. 하단면 (Bottom) */
-        .bottom {
-            width: var(--book-width);
-            height: var(--spine-width);
-            bottom: calc(var(--spine-width) / -2);
-            transform: rotateX(-90deg) translateZ(0);
-        }
-
-        /* 텍스트 */
-        .spine-text {
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            font-family: 'Noto Serif KR', serif;
-            font-size: 15px;
-            letter-spacing: 0.2em;
-            color: rgba(0,0,0,0.65);
-            font-weight: 900;
-            z-index: 10;
-        }
+        .spine-text { writing-mode: vertical-rl; text-orientation: mixed; font-family: 'Noto Serif KR', serif; font-size: 15px; letter-spacing: 0.2em; color: rgba(0,0,0,0.65); font-weight: 900; z-index: 10; }
 
         /* 스티커 */
         .sticker {
@@ -185,120 +126,132 @@
             object-fit: cover;
             object-position: center 25%;
             filter: contrast(1.05) brightness(0.98);
+            transition: opacity 0.5s ease;
         }
 
-        .tape {
-            position: absolute;
-            width: 55px;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(2px);
-            z-index: 21;
-        }
+        .tape { position: absolute; width: 55px; height: 20px; background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(2px); z-index: 21; }
         .tape-tr { top: -5px; right: -12px; transform: rotate(42deg); }
 
-        .back-inner {
-            border: 1px solid rgba(0,0,0,0.1);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 30px;
-            position: relative;
-            z-index: 10;
-            background: rgba(210, 180, 140, 0.88);
-            backdrop-filter: blur(3px);
-        }
+        .back-inner { border: 1px solid rgba(0,0,0,0.1); height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; position: relative; z-index: 10; background: rgba(210, 180, 140, 0.88); backdrop-filter: blur(3px); }
 
-        /* [컨페티 데코레이션] */
-        .confetti {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background-color: #fff9c4; /* 연한 노랑 꽃잎 */
-            border-radius: 50% 0 50% 0;
-            pointer-events: none;
-            z-index: 30;
-            opacity: 0.7;
-            filter: blur(0.5px);
-        }
-        
-        .confetti.leaf {
-            background-color: #81c784; /* 연한 초록 나뭇잎 */
-            border-radius: 100% 0 100% 0;
-        }
-
+        /* 애니메이션 및 데코 */
+        .confetti { position: absolute; width: 12px; height: 12px; background-color: #fff9c4; border-radius: 50% 0 50% 0; pointer-events: none; z-index: 30; opacity: 0.7; filter: blur(0.5px); }
+        .confetti.leaf { background-color: #81c784; border-radius: 100% 0 100% 0; }
         @keyframes confettiFall {
             0% { transform: translate3d(0, 0, 0) rotate(0); opacity: 0; }
             20% { opacity: 0.8; }
             100% { transform: translate3d(var(--x), var(--y), 100px) rotate(360deg); opacity: 0; }
         }
-
-        /* 부유 애니메이션 */
         @keyframes floatingAnim {
             0%, 100% { transform: translateY(0) rotateX(0deg); }
             50% { transform: translateY(-20px) rotateX(2deg); }
         }
         .floating { animation: floatingAnim 5s infinite ease-in-out; }
 
-        .glass-ui {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+        .glass-ui { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.15); }
+        .ribbon-shine { position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); }
+
+        /* 하단 스와이프 캐러셀 스타일 */
+        .carousel-container {
+            width: 100%;
+            position: relative;
+            padding: 20px 0;
+        }
+        .carousel-track {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding: 20px 40px;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* IE and Edge */
+        }
+        .carousel-track::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+        .book-item-card {
+            flex: 0 0 160px;
+            scroll-snap-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .book-item-thumb {
+            aspect-ratio: 3/4.2;
+            background-color: var(--kraft-bg);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            transform-origin: center;
+        }
+        .book-item-card.active { transform: scale(1.1); z-index: 10; }
+        .book-item-card.active .book-item-thumb {
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            outline: 2px solid rgba(255,255,255,0.3);
         }
 
-        .ribbon-shine {
+        .carousel-btn {
             position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 20;
+            transition: all 0.2s;
         }
+        .carousel-btn:hover { background: rgba(255,255,255,0.25); }
+        .carousel-btn:active { scale: 0.95; }
+        .carousel-btn.left { left: 0; }
+        .carousel-btn.right { right: 0; }
     </style>
 </head>
 <body class="text-white">
 
     <div class="forest-bg"></div>
 
-    <main class="min-h-screen flex flex-col items-center justify-center p-8 lg:p-16">
-        
+    <!-- 메인 히어로 섹션 -->
+    <main class="min-h-screen flex flex-col items-center justify-center p-8 lg:p-16 pt-20">
         <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             
-            <!-- 왼쪽: 3D 책 시각화 영역 -->
+            <!-- 왼쪽: 3D 책 시뮬레이터 -->
             <div class="flex flex-col items-center relative">
-                
                 <div class="perspective-stage floating">
-                    <!-- 컨페티 장식들 (상단 공간 집중 배치) -->
                     <div id="confetti-wrapper" class="absolute inset-0 pointer-events-none"></div>
 
-                    <div id="book" class="book-container">
-                        
-                        <!-- 1. 앞표지 -->
+                    <div id="book-container" class="book-container">
+                        <!-- 앞표지 -->
                         <div class="face front">
                             <div class="kraft-texture"></div>
                             <div class="text-[10px] font-black tracking-[0.6em] text-stone-800/40 uppercase border-b border-stone-800/20 pb-1 relative z-10">
                                 Blind Book Selection
                             </div>
-                            
                             <div class="ribbon-v"><div class="ribbon-shine" style="transform: rotate(90deg)"></div></div>
                             <div class="ribbon-h"><div class="ribbon-shine"></div></div>
-
                             <div class="sticker">
                                 <div class="tape tape-tr"></div>
-                                <img src="https://image.yes24.com/momo/TopCate6744/MidCate001/674300637.jpg" alt="작가 손글씨">
+                                <img id="main-sticker-img" src="https://image.yes24.com/momo/TopCate6744/MidCate001/674300637.jpg" alt="작가 손글씨">
                             </div>
-
                             <div class="mt-auto mb-12 relative z-10">
                                 <span class="text-[14px] font-black text-blue-950/40 tracking-[0.6em] uppercase">YES24</span>
                             </div>
                         </div>
 
-                        <!-- 2. 뒷표지 -->
+                        <!-- 뒷표지 -->
                         <div class="face back">
                             <div class="kraft-texture"></div>
                             <div class="ribbon-v"></div>
                             <div class="ribbon-h"></div>
                             <div class="back-inner shadow-2xl">
-                                <p class="serif text-stone-900/80 leading-loose text-sm italic font-black">
+                                <p id="main-curator-note" class="serif text-stone-900/80 leading-loose text-sm italic font-black break-keep">
                                     “나뭇잎 사이로 부서지는 햇살처럼,<br>
                                     이 문장이 당신의 오늘에<br>
                                     작은 빛이 되길 바랍니다.”
@@ -308,39 +261,20 @@
                                         <div class="w-[1.5px] h-4 bg-black"></div><div class="w-[2.5px] h-6 bg-black"></div>
                                         <div class="w-[1.5px] h-3 bg-black"></div><div class="w-[1.5px] h-5 bg-black"></div>
                                     </div>
-                                    <span class="text-[10px] font-bold tracking-widest text-black">YES24-BLIND-2026</span>
+                                    <span id="main-isbn" class="text-[10px] font-bold tracking-widest text-black uppercase">YES24-BLIND-01</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 3. 책등 (왼쪽) -->
-                        <div class="face spine">
-                            <div class="kraft-texture"></div>
-                            <div class="ribbon-h"></div>
-                            <div class="spine-text">2026 젊은 작가 블라인드북</div>
-                        </div>
-
-                        <!-- 4. 우측면 (오른쪽) -->
-                        <div class="face right">
-                            <div class="kraft-texture"></div>
-                            <div class="ribbon-h"></div>
-                        </div>
-
-                        <!-- 5. 상단면 (세로 리본 연결) -->
-                        <div class="face top">
-                            <div class="kraft-texture"></div>
-                            <div class="ribbon-v" style="height: 100%; width: var(--ribbon-size); left: 50%;"></div>
-                        </div>
-
-                        <!-- 6. 하단면 (세로 리본 연결) -->
-                        <div class="face bottom">
-                            <div class="kraft-texture"></div>
-                            <div class="ribbon-v" style="height: 100%; width: var(--ribbon-size); left: 50%;"></div>
-                        </div>
+                        <!-- 기타 면 -->
+                        <div class="face spine"><div class="kraft-texture"></div><div class="ribbon-h"></div><div class="spine-text">2026 젊은 작가 블라인드북</div></div>
+                        <div class="face right"><div class="kraft-texture"></div><div class="ribbon-h"></div></div>
+                        <div class="face top"><div class="kraft-texture"></div><div class="ribbon-v" style="height: 100%; width: var(--ribbon-size); left: 50%;"></div></div>
+                        <div class="face bottom"><div class="kraft-texture"></div><div class="ribbon-v" style="height: 100%; width: var(--ribbon-size); left: 50%;"></div></div>
                     </div>
                 </div>
 
-                <!-- 인터랙션 컨트롤러 -->
+                <!-- 회전 컨트롤러 -->
                 <div class="mt-24 flex p-1.5 bg-black/40 rounded-full backdrop-blur-xl border border-white/10 relative z-50 shadow-2xl">
                     <button onclick="rotateTo('front')" id="btn-front" class="px-8 py-2.5 rounded-full text-xs font-bold transition-all bg-white text-stone-900 shadow-xl">앞표지</button>
                     <button onclick="rotateTo('spine')" id="btn-spine" class="px-8 py-2.5 rounded-full text-xs font-bold transition-all text-white/50 hover:text-white">책등</button>
@@ -348,34 +282,19 @@
                 </div>
             </div>
 
-            <!-- 오른쪽: 이벤트 기획 상세 -->
+            <!-- 오른쪽: 기획 정보 -->
             <div class="space-y-10">
                 <div class="glass-ui p-10 rounded-[3rem]">
                     <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-green-500/20 text-green-300 text-[10px] font-black tracking-widest rounded-full mb-6 border border-green-400/20 uppercase">
                         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                         YES24 X 2026 YOUNG WRITERS
                     </div>
-                    <h2 class="text-4xl serif font-black mb-6 leading-tight">숲 속에서 만나는<br>운명의 문장</h2>
-                    <p class="text-white/60 leading-relaxed mb-10 text-sm">
-                        2026년, 대한민국이 주목하는 젊은 작가들의 목소리를 블라인드북에 담았습니다. 제목도, 이름도 지운 채 오직 작가가 직접 쓴 첫 문장만으로 당신의 운명의 책을 발견해 보세요.
+                    <h2 id="main-title" class="text-4xl serif font-black mb-6 leading-tight">숲 속에서 만나는<br>운명의 문장</h2>
+                    <p id="main-desc" class="text-white/60 leading-relaxed mb-10 text-sm">
+                        2026년, 대한민국이 주목하는 젊은 작가들의 목소리를 블라인드북에 담았습니다. 오직 작가가 직접 쓴 첫 문장 스티커와 깊은 숲의 향기를 머금은 패키지로 당신만의 취향을 발견해 보세요.
                     </p>
 
-                    <div class="space-y-4 mb-10">
-                        <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-default">
-                            <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                                <i data-lucide="pen-tool" class="w-5 h-5 text-green-400"></i>
-                            </div>
-                            <p class="text-xs font-medium text-white/80">작가 친필 첫 문장을 스티커처럼 표현하여 강조</p>
-                        </div>
-                        <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-default">
-                            <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                                <i data-lucide="package" class="w-5 h-5 text-green-400"></i>
-                            </div>
-                            <p class="text-xs font-medium text-white/80">친환경 크라프트 패키지 & 실크 리본 느낌이 나는 디자인으로 표1/책등/뒷표지 구현</p>
-                        </div>
-                    </div>
-
-                    <a href="https://www.yes24.com/product/goods/184231560" target="_blank" class="block w-full">
+                    <a id="main-buy-link" href="https://www.yes24.com/product/goods/184231560" target="_blank" class="block w-full">
                         <button class="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black text-lg transition-all shadow-2xl shadow-blue-600/40 flex items-center justify-center gap-3 active:scale-95">
                             운명의 책 구매하기
                             <i data-lucide="arrow-right" class="w-5 h-5"></i>
@@ -383,69 +302,141 @@
                     </a>
                 </div>
             </div>
-
         </div>
     </main>
 
+    <!-- 하단 스와이프 캐러셀 섹션 -->
+    <section class="w-full max-w-6xl mx-auto px-4 pb-32">
+        <div class="px-4 mb-8">
+            <h3 class="text-2xl font-black serif mb-1">2026 젊은 작가 라인업</h3>
+            <p class="text-white/30 text-xs tracking-widest uppercase italic">Swipe to browse the collection</p>
+        </div>
+
+        <div class="carousel-container">
+            <button onclick="scrollCarousel(-1)" class="carousel-btn left"><i data-lucide="chevron-left"></i></button>
+            <button onclick="scrollCarousel(1)" class="carousel-btn right"><i data-lucide="chevron-right"></i></button>
+            
+            <div id="book-carousel" class="carousel-track">
+                <!-- JS로 7권 생성 -->
+            </div>
+        </div>
+    </section>
+
     <script>
-        const book = document.getElementById('book');
-        const btns = {
-            front: document.getElementById('btn-front'),
-            spine: document.getElementById('btn-spine'),
-            back: document.getElementById('btn-back')
-        };
+        const booksData = [
+            { id: 1, sticker: "https://image.yes24.com/momo/TopCate6744/MidCate001/674300637.jpg", link: "https://www.yes24.com/product/goods/184231560", note: "“나뭇잎 사이로 부서지는 햇살처럼,<br>이 문장이 당신의 오늘에<br>작은 빛이 되길 바랍니다.”", isbn: "YES24-BLIND-01", title: "숲 속에서 만나는<br>운명의 문장", desc: "2026년, 대한민국이 주목하는 젊은 작가들의 목소리를 블라인드북에 담았습니다." },
+            { id: 2, sticker: "https://image.yes24.com/momo/TopCate0001/MidCate001/100000001.jpg", link: "https://www.yes24.com/product/goods/184231560", note: "“무너진 담장 사이로<br>이름 모를 꽃이 피어났습니다.<br>그것은 희망이었습니다.”", isbn: "YES24-BLIND-02", title: "침묵 끝에 피어난<br>단 하나의 진실", desc: "조용하지만 강렬한 필체로 일상의 이면을 날카롭게 파고드는 신예 작가의 데뷔작." },
+            { id: 3, sticker: "https://image.yes24.com/momo/TopCate0001/MidCate001/100000002.jpg", link: "https://www.yes24.com/product/goods/184231560", note: "“우리는 매일 조금씩<br>서로의 숲이 되어가고 있다.<br>아무도 모르는 사이에.”", isbn: "YES24-BLIND-03", title: "어제의 안녕과<br>내일의 약속", desc: "관계에 대한 깊은 통찰과 따스한 위로를 전하는 감성 소설의 정점." },
+            { id: 4, sticker: "https://image.yes24.com/momo/TopCate0001/MidCate001/100000003.jpg", link: "https://www.yes24.com/product/goods/184231560", note: "“그날 밤, 아무도 모르게<br>사라진 것은 나의 비밀이<br>아니라 너의 고백이었다.”", isbn: "YES24-BLIND-04", title: "어둠 속에서 들리는<br>선명한 숨소리", desc: "서늘한 긴장감과 반전의 미학을 보여주는 미스터리 스릴러의 정석." },
+            { id: 5, sticker: "https://image.yes24.com/momo/TopCate0001/MidCate001/100000004.jpg", link: "https://www.yes24.com/product/goods/184231560", note: "“여름의 끝자락에서<br>우리가 나누었던 약속들은<br>파도에 씻겨 내려갔다.”", isbn: "YES24-BLIND-05", title: "푸른 바다 아래<br>잠든 기억들", desc: "지나간 청춘에 대한 찬가와 잊을 수 없는 첫사랑의 기억을 담은 서사." },
+            { id: 6, sticker: "https://image.yes24.com/momo/TopCate0001/MidCate001/100000005.jpg", link: "https://www.yes24.com/product/goods/184231560", note: "“완벽한 문장은 없다.<br>다만 진실에 도달하려는<br>서툰 시도만이 있을 뿐이다.”", isbn: "YES24-BLIND-06", title: "기록되지 않은<br>삶의 조각들", desc: "문학의 본질을 묻는 젊은 거장의 철학적인 에세이 소설 에디션." },
+            { id: 7, sticker: "https://image.yes24.com/momo/TopCate0001/MidCate001/100000006.jpg", link: "https://www.yes24.com/product/goods/184231560", note: "“건강하지 않아도<br>오래 살 수 있는 방법은<br>누군가의 기억에 남는 것이다.”", isbn: "YES24-BLIND-07", title: "영원히 기억될<br>삶의 짧은 구절", desc: "삶과 죽음에 대한 성찰을 담은, 가장 아프고도 아름다운 고백." }
+        ];
 
-        // 컨페티 생성 함수
-        function createConfetti() {
-            const wrapper = document.getElementById('confetti-wrapper');
-            const colors = ['#fff9c4', '#f8bbd0', '#c8e6c9', '#e1f5fe'];
-            const count = 30;
+        let selectedIdx = 0;
+        const bookContainer = document.getElementById('book-container');
+        const mainImg = document.getElementById('main-sticker-img');
+        const mainNote = document.getElementById('main-curator-note');
+        const mainIsbn = document.getElementById('main-isbn');
+        const mainTitle = document.getElementById('main-title');
+        const mainDesc = document.getElementById('main-desc');
+        const mainBuyLink = document.getElementById('main-buy-link');
+        const carouselTrack = document.getElementById('book-carousel');
 
-            for (let i = 0; i < count; i++) {
-                const confetti = document.createElement('div');
-                const isLeaf = Math.random() > 0.5;
-                confetti.className = `confetti ${isLeaf ? 'leaf' : ''}`;
+        function initCarousel() {
+            booksData.forEach((book, idx) => {
+                const card = document.createElement('div');
+                card.className = `book-item-card ${idx === selectedIdx ? 'active' : ''}`;
+                card.id = `book-card-${idx}`;
+                card.onclick = () => selectBook(idx);
                 
-                // 랜덤 위치 및 애니메이션 설정
-                const startX = Math.random() * 320; // 책 너비 안에서 시작
-                const startY = -20; // 책 상단 위쪽
-                const targetX = (Math.random() - 0.5) * 400;
-                const targetY = Math.random() * 200 + 100;
-                const duration = 4 + Math.random() * 6;
-                const delay = Math.random() * 5;
+                card.innerHTML = `
+                    <div class="book-item-thumb">
+                        <div class="kraft-texture" style="opacity: 0.5"></div>
+                        <div style="background-color: var(--ribbon-color); width: 100%; height: 12px; position: absolute; top: 55%; transform: translateY(-50%)"></div>
+                        <div style="background-color: var(--ribbon-color); width: 12px; height: 100%; position: absolute; left: 50%; transform: translateX(-50%)"></div>
+                        <div style="position: absolute; width: 75%; height: 45%; background: #fff; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-1.5deg); box-shadow: 0 4px 8px rgba(0,0,0,0.1)">
+                            <div style="font-size: 8px; color: #888; font-weight: bold; text-align: center; margin-top: 10px; opacity: 0.5">Author's line</div>
+                        </div>
+                    </div>
+                    <p class="mt-4 text-[9px] font-bold text-center tracking-widest text-white/40 uppercase italic">Blind Selection 0${book.id}</p>
+                `;
+                carouselTrack.appendChild(card);
+            });
+        }
 
-                confetti.style.left = `${startX}px`;
-                confetti.style.top = `${startY}px`;
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.setProperty('--x', `${targetX}px`);
-                confetti.style.setProperty('--y', `${targetY}px`);
-                confetti.style.animation = `confettiFall ${duration}s ${delay}s infinite ease-out`;
+        function scrollCarousel(direction) {
+            const cardWidth = 180; // card(160) + gap(20)
+            carouselTrack.scrollBy({ left: direction * cardWidth, behavior: 'smooth' });
+        }
 
-                wrapper.appendChild(confetti);
+        function selectBook(idx) {
+            selectedIdx = idx;
+            const data = booksData[idx];
+
+            // 3D 책 업데이트 (Fade Interaction)
+            mainImg.style.opacity = '0';
+            setTimeout(() => {
+                mainImg.src = data.sticker;
+                mainImg.style.opacity = '1';
+                mainNote.innerHTML = data.note;
+                mainIsbn.innerText = data.isbn;
+                mainTitle.innerHTML = data.title;
+                mainDesc.innerText = data.desc;
+                mainBuyLink.href = data.link;
+            }, 300);
+
+            // 캐러셀 활성화 상태 업데이트
+            document.querySelectorAll('.book-item-card').forEach(c => c.classList.remove('active'));
+            document.getElementById(`book-card-${idx}`).classList.add('active');
+
+            // 클릭 시 해당 카드가 중앙으로 오도록 스크롤
+            const card = document.getElementById(`book-card-${idx}`);
+            carouselTrack.scrollTo({
+                left: card.offsetLeft - (carouselTrack.offsetWidth / 2) + (card.offsetWidth / 2),
+                behavior: 'smooth'
+            });
+
+            if(window.innerWidth < 1024) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
+            rotateTo('front');
         }
 
         function rotateTo(side) {
-            Object.values(btns).forEach(b => {
-                b.classList.remove('bg-white', 'text-stone-900', 'shadow-xl');
-                b.classList.add('text-white/50');
-            });
-
+            const btns = { front: document.getElementById('btn-front'), spine: document.getElementById('btn-spine'), back: document.getElementById('btn-back') };
+            bookContainer.classList.remove('show-back', 'show-spine');
+            Object.values(btns).forEach(b => { b.classList.remove('bg-white', 'text-stone-900', 'shadow-xl'); b.classList.add('text-white/50'); });
             btns[side].classList.add('bg-white', 'text-stone-900', 'shadow-xl');
             btns[side].classList.remove('text-white/50');
+            if (side === 'back') bookContainer.classList.add('show-back');
+            else if (side === 'spine') bookContainer.classList.add('show-spine');
+        }
 
-            if (side === 'front') {
-                book.style.transform = "rotateY(0deg)";
-            } else if (side === 'spine') {
-                book.style.transform = "rotateY(90deg)";
-            } else if (side === 'back') {
-                book.style.transform = "rotateY(180deg)";
+        function createConfetti() {
+            const wrapper = document.getElementById('confetti-wrapper');
+            const colors = ['#fff9c4', '#f8bbd0', '#c8e6c9', '#e1f5fe'];
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                const isLeaf = Math.random() > 0.5;
+                confetti.className = `confetti ${isLeaf ? 'leaf' : ''}`;
+                const startX = Math.random() * 320;
+                const targetX = (Math.random() - 0.5) * 400;
+                const targetY = Math.random() * 200 + 100;
+                confetti.style.left = `${startX}px`;
+                confetti.style.top = `-20px`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.setProperty('--x', `${targetX}px`);
+                confetti.style.setProperty('--y', `${targetY}px`);
+                confetti.style.animation = `confettiFall ${4 + Math.random() * 6}s ${Math.random() * 5}s infinite ease-out`;
+                wrapper.appendChild(confetti);
             }
         }
 
         window.onload = () => {
             lucide.createIcons();
-            createConfetti(); // 페이지 로드 시 컨페티 장식 생성
+            initCarousel();
+            createConfetti();
         };
     </script>
 </body>
